@@ -322,4 +322,93 @@ Router.post("/checkTasks", (req, res) => {
   );
 });
 
+Router.post("/claimTask", (req, res) => {
+  const { playfabId, task } = req.body;
+  const taskId = parseInt(task.Id);
+
+  req.con.query(
+    `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
+    (err, players) => {
+      if (err)
+        return res
+          .status(404)
+          .json({ Error: "Wasn't able to get players", Success: null });
+
+      if (players.length <= 0)
+        return res
+          .status(404)
+          .json({ Error: "Wasn't able to get players", Success: null });
+
+      const player = players[0];
+
+      const playerTasks = player.Tasks.split(", ");
+      const claimed = player.Claimed.split(", ");
+      const status = player.Status.split(", ");
+
+      let proofIndex = 0;
+
+      playerTasks.forEach((t, index) => {
+        if (parseInt(t) === taskId) {
+          proofIndex = index;
+        }
+      });
+
+      if (proofIndex === 0)
+        return res.status(404).json({
+          Error: "Wasn't able to find that task in you tasks",
+          Success: null,
+        });
+
+      if (parseInt(claimed[proofIndex]) === 1)
+        return res
+          .status(404)
+          .json({ Error: "Already claimed this task", Success: null });
+
+      req.con.query(
+        `SELECT * FROM DailyTasks WHERE Id='${taskId}'`,
+        (err, dailyTasks) => {
+          if (err)
+            return res
+              .status(404)
+              .json({ Error: "Wasn't able to get daily tasks", Success: null });
+
+          if (dailyTasks.length <= 0)
+            return res
+              .status(404)
+              .json({ Error: "No daily tasks available", Success: null });
+
+          const dailyTask = dailyTasks[0];
+
+          if (status[proofIndex] < parseInt(dailyTask.Requirements))
+            return res
+              .status(404)
+              .json({ Error: "Task not completed yet", Success: null });
+
+          claimed[proofIndex] = "1";
+
+          req.con.query(
+            `UPDATE Players SET Claimed='${claimed.join(", ")}' WHERE PlayFabId='${playfabId}'`,
+            (err, updated) => {
+              if (err)
+                return res.status(404).json({
+                  Error: "Wasn't able to update claim request",
+                  Success: null,
+                });
+
+              return res
+                .status(202)
+                .json(
+                  new DailyReward(
+                    dailyTask.Currency,
+                    parseInt(dailyTask.Reward),
+                  ),
+                );
+            },
+          );
+        },
+      );
+    },
+  );
+});
+
 module.exports = Router;
