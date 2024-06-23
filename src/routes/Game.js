@@ -1,5 +1,3 @@
-const { createIndexes } = require("../schema/ClanSchema");
-
 const Router = require("express").Router();
 
 const ListOfDiscordMods = [
@@ -347,7 +345,7 @@ Router.post("/claimTask", (req, res) => {
       const claimed = player.Claimed.split(", ");
       const status = player.Status.split(", ");
 
-      let proofIndex = 0;
+      let proofIndex = -1;
 
       playerTasks.forEach((t, index) => {
         if (parseInt(t) === taskId) {
@@ -355,9 +353,9 @@ Router.post("/claimTask", (req, res) => {
         }
       });
 
-      if (proofIndex === 0)
+      if (proofIndex === -1)
         return res.status(404).json({
-          Error: "Wasn't able to find that task in you tasks",
+          Error: "Wasn't able to find that task in your tasks",
           Success: null,
         });
 
@@ -397,14 +395,13 @@ Router.post("/claimTask", (req, res) => {
                   Success: null,
                 });
 
-              return res
-                .status(202)
-                .json(
-                  new DailyReward(
-                    dailyTask.Currency,
-                    parseInt(dailyTask.Reward),
-                  ),
-                );
+              return res.status(201).json({
+                Error: null,
+                Success: new DailyReward(
+                  dailyTask.Currency,
+                  parseInt(dailyTask.Reward),
+                ),
+              });
             },
           );
         },

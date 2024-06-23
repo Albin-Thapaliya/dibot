@@ -1,16 +1,15 @@
 const Discord = require("discord.js");
 const Express = require("express");
-const mongoose = require("mongoose");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const {
   BotToken,
-  MongoURI,
   MySQLHost,
   MySQLPassword,
   MySQLUser,
+  MySQLDatabase,
 } = require("./config");
 
 const con = mysql.createConnection({
@@ -18,15 +17,6 @@ const con = mysql.createConnection({
   password: MySQLPassword,
   host: MySQLHost,
 });
-
-mongoose
-  .connect(MongoURI, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("Connected to database"))
-  .catch(console.error);
 
 const Client = new Discord.Client();
 const App = Express();
@@ -53,6 +43,7 @@ const Server = App.listen(8070, () => {
 Client.on("ready", () => {
   require("./src/lib/Initialize").InitFunctions(Client);
 
+  Client["con"] = con;
   module.exports = { Client };
 });
 
