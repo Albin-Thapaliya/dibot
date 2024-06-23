@@ -105,23 +105,24 @@ Router.post("/acceptInvite", (req, res) => {
   );
 
   ClanSchema.findOne({ Group: groupData }, (err, clan) => {
-    if (err) return console.error(err);
+    if (err)
+      return console.error({ Error: "This clan doesn't exist", Success: null });
 
     if (!clan)
       return res
         .status(404)
-        .json({ Error: "This clan doesn't exist", Success: null });
+        .json({ Error: "No clan with that Id found", Success: null });
 
     InviteSchema.find({ Group: groupData }, (err, invites) => {
       if (err)
         return res
           .status(404)
-          .json({ Error: "No clan with that Id found", Success: null });
+          .json({ Error: "No invites to that clan found", Success: null });
 
       if (invites.length <= 0)
         return res
           .status(404)
-          .json({ Error: "No invites to that clan found", Success: null });
+          .json({ Error: "This clan sent no invites", Success: null });
 
       const invite = invites.find(
         (inv) => inv.InvitedEntity.Key.Id === entityKey.Id,
@@ -149,7 +150,7 @@ Router.post("/acceptInvite", (req, res) => {
               .json({ Error: "Not able to delete invite", Success: null });
         });
         console.log("Player got invited");
-        return res.status(201).json("Success");
+        return res.status(201).json({ Error: null, Success: clan.toObject() });
       });
     });
   });
@@ -181,7 +182,7 @@ Router.post("/acceptApp", (req, res) => {
       if (!app)
         return res
           .status(404)
-          .json({ Error: "Not able to save", Success: null });
+          .json({ Error: "This user didn't create any apps", Success: null });
 
       clan.Members[1].Members.push({
         Key: entityKey,
@@ -192,7 +193,7 @@ Router.post("/acceptApp", (req, res) => {
         if (err)
           return res
             .status(404)
-            .json({ Error: "Wasn't able to store the clan" });
+            .json({ Error: "Not able to save", Success: null });
 
         ApplicationSchema.deleteOne(app.toObject(), (err, result) => {
           if (err)
@@ -201,7 +202,7 @@ Router.post("/acceptApp", (req, res) => {
               .json({ Error: "Not able to delete application", Success: null });
         });
         console.log("Player added to clan");
-        return res.status(201).json("Success");
+        return res.status(201).json({ Error: null, Success: clan.toObject() });
       });
     });
   });
