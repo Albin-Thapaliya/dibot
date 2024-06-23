@@ -91,7 +91,7 @@ Router.post("/createTask", DiscordMiddleWare, (req, res) => {
 });
 
 Router.post("/getTasks", (req, res) => {
-  const { playfabId } = req.body;
+  const { playfabId } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
     `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
@@ -155,7 +155,7 @@ Router.post("/getTasks", (req, res) => {
 });
 
 Router.post("/updateTask", (req, res) => {
-  const { playfabId, taskName } = req.body;
+  const { playfabId, taskName } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
     `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
@@ -249,7 +249,7 @@ Router.post("/updateTask", (req, res) => {
 });
 
 Router.post("/checkTasks", (req, res) => {
-  const { playfabId, dateTime } = req.body;
+  const { playfabId, dateTime } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
     `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
@@ -323,7 +323,7 @@ Router.post("/checkTasks", (req, res) => {
 });
 
 Router.post("/claimTask", (req, res) => {
-  const { playfabId, task } = req.body;
+  const { playfabId, task } = JSON.parse(req.headers["bodydata"]);
   const taskId = parseInt(task.Id);
 
   req.con.query(
