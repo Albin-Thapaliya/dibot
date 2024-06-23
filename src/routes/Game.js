@@ -2,9 +2,7 @@ const { createIndexes } = require("../schema/ClanSchema");
 
 const Router = require("express").Router();
 
-const ListOfDiscordMods = [
-  // add your admin discord id
-];
+const ListOfDiscordMods = ["420155082365992961", "194101620567441408"];
 
 class Task {
   constructor(reward, currency, amount, description, requirements) {
@@ -244,6 +242,80 @@ Router.post("/updateTask", (req, res) => {
           );
         },
       );
+    },
+  );
+});
+
+Router.post("/checkTasks", (req, res) => {
+  const { playfabId, dateTime } = req.body;
+
+  req.con.query(
+    `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
+    (err, players) => {
+      if (err)
+        return res
+          .status(404)
+          .json({ Error: "Wasn't able to get player", Success: null });
+
+      if (players.length <= 0) {
+        req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
+          if (err)
+            return res.status(404).json({
+              Error: "Wasn't able to retrieve daily tasks",
+              Success: null,
+            });
+
+          if (dailyTasks.length <= 0)
+            return res
+              .status(404)
+              .json({ Error: "No daily tasks available", Success: null });
+
+          const tasks = GetTasks(tasks);
+
+          req.con.query(
+            `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0')`,
+            (err, updated) => {
+              if (err)
+                return res.status(404).json({
+                  Error: "Wasn't able to set the player entry",
+                  Success: null,
+                });
+
+              return res.status(201).json({ Error: null, Success: null });
+            },
+          );
+        });
+      } else if (players.length > 0) {
+        if (parseInt(dateTime) - parseInt(players[0].TaskUpdate) >= 86400) {
+          req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
+            if (err)
+              return res.status(404).json({
+                Error: "Wasn't able to retrieve daily tasks",
+                Success: null,
+              });
+
+            if (dailyTasks.length <= 0)
+              return res
+                .status(404)
+                .json({ Error: "No daily tasks available", Success: null });
+
+            const tasks = GetTasks(tasks);
+
+            req.con.query(
+              `UPDATE Players SET TaskUpdate='${dateTime}', Tasks='${tasks.join(", ")}', Status='0, 0, 0', Claimed='0, 0, 0' WHERE PlayFabId='${playfabId}'`,
+              (err, updated) => {
+                if (err)
+                  return res.status(404).json({
+                    Error: "Wasn't able to update your daily tasks",
+                    Success: null,
+                  });
+
+                return res.status(201).json({ Error: null, Success: null });
+              },
+            );
+          });
+        }
+      }
     },
   );
 });
