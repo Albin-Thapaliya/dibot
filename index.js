@@ -34,8 +34,8 @@ const App = Express();
 const ClanRouter = require("./src/routes/Clan");
 const GameRouter = require("./src/routes/Game");
 
-App.use("/clan", ClanRouter);
-App.use("/game", GameRouter);
+App.use(bodyParser.json());
+App.use(cors());
 
 App.use((req, res, next) => {
   req["con"] = con;
@@ -43,8 +43,8 @@ App.use((req, res, next) => {
   next();
 });
 
-App.use(bodyParser.json());
-App.use(cors());
+App.use("/clan", ClanRouter);
+App.use("/game", GameRouter);
 
 const Server = App.listen(8070, () => {
   console.log(`Listening on port ${Server.address().port}`);
