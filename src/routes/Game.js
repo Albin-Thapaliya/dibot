@@ -3,7 +3,7 @@ const { createIndexes } = require("../schema/ClanSchema");
 const Router = require("express").Router();
 
 const ListOfDiscordMods = [
-  // add your admin discord id
+  // future mod id
 ];
 
 class Task {
@@ -254,14 +254,9 @@ Router.post("/checkTasks", (req, res) => {
   req.con.query(
     `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
     (err, players) => {
-      if (err)
-        return res
-          .status(404)
-          .json({ Error: "Wasn't able to get player", Success: null });
-
-      if (players.length <= 0) {
-        req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
-          if (err)
+      if (err) {
+        req.con.query("SELECT * FROM DailyTasks", (err1, dailyTasks) => {
+          if (err1)
             return res.status(404).json({
               Error: "Wasn't able to retrieve daily tasks",
               Success: null,
@@ -276,8 +271,8 @@ Router.post("/checkTasks", (req, res) => {
 
           req.con.query(
             `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0')`,
-            (err, updated) => {
-              if (err)
+            (err2, updated) => {
+              if (err2)
                 return res.status(404).json({
                   Error: "Wasn't able to set the player entry",
                   Success: null,
