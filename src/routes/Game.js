@@ -254,9 +254,14 @@ Router.post("/checkTasks", (req, res) => {
   req.con.query(
     `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
     (err, players) => {
-      if (err) {
-        req.con.query("SELECT * FROM DailyTasks", (err1, dailyTasks) => {
-          if (err1)
+      if (err)
+        return res
+          .status(404)
+          .json({ Error: "Wasn't able to get player", Success: null });
+
+      if (players.length <= 0) {
+        req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
+          if (err)
             return res.status(404).json({
               Error: "Wasn't able to retrieve daily tasks",
               Success: null,
@@ -267,12 +272,12 @@ Router.post("/checkTasks", (req, res) => {
               .status(404)
               .json({ Error: "No daily tasks available", Success: null });
 
-          const tasks = GetTasks(tasks);
+          const tasks = GetTasks(dailyTasks);
 
           req.con.query(
             `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0')`,
-            (err2, updated) => {
-              if (err2)
+            (err, updated) => {
+              if (err)
                 return res.status(404).json({
                   Error: "Wasn't able to set the player entry",
                   Success: null,
@@ -296,7 +301,7 @@ Router.post("/checkTasks", (req, res) => {
                 .status(404)
                 .json({ Error: "No daily tasks available", Success: null });
 
-            const tasks = GetTasks(tasks);
+            const tasks = GetTasks(dailyTasks);
 
             req.con.query(
               `UPDATE Players SET TaskUpdate='${dateTime}', Tasks='${tasks.join(", ")}', Status='0, 0, 0', Claimed='0, 0, 0' WHERE PlayFabId='${playfabId}'`,
