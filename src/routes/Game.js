@@ -2,7 +2,9 @@ const { createIndexes } = require("../schema/ClanSchema");
 
 const Router = require("express").Router();
 
-const ListOfDiscordMods = ["420155082365992961", "194101620567441408"];
+const ListOfDiscordMods = [
+  // add your admin discord id
+];
 
 class Task {
   constructor(reward, currency, amount, description, requirements) {
