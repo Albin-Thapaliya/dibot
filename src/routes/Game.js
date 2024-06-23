@@ -3,7 +3,7 @@ const { createIndexes } = require("../schema/ClanSchema");
 const Router = require("express").Router();
 
 const ListOfDiscordMods = [
-  // future mod id
+  // add mod id here
 ];
 
 class Task {
@@ -113,7 +113,7 @@ Router.post("/getTasks", (req, res) => {
       const completed = player.Claimed.split(", ");
 
       req.con.query(
-        `SELECT * FROM DailyTasks WHERE Id IN ('${tasks.join('"', '"')}')`,
+        `SELECT * FROM DailyTasks WHERE Id IN ('${tasks.join("', '")}')`,
         (err, dailyTasks) => {
           if (err)
             return res
@@ -128,9 +128,9 @@ Router.post("/getTasks", (req, res) => {
 
           const myTasks = [];
 
-          dailyTasks.forEach((daily) => {
-            tasks.forEach((mytask, j) => {
-              if (t == d.Id) {
+          tasks.forEach((mytask, j) => {
+            dailyTasks.forEach((daily) => {
+              if (parseInt(mytask) === parseInt(daily.Id)) {
                 myTasks.push(
                   new YourTask(
                     parseInt(status[j]),
@@ -193,7 +193,7 @@ Router.post("/updateTask", (req, res) => {
           const weaponId = weapons[0].Id;
 
           req.con.query(
-            `SELECT Id, Requirements FROM DailyTasks WHERE Id IN ('${$taskIds[0]}', '${taskIds[1]}', '${taskIds[2]}')`,
+            `SELECT Id, Requirements FROM DailyTasks WHERE Id IN ('${taskIds.join("', '")}')`,
             (err, dailyTasks) => {
               if (err)
                 return res.status(404).json({
@@ -208,13 +208,13 @@ Router.post("/updateTask", (req, res) => {
                 });
 
               taskIds.forEach((t, i) => {
-                dailyTasks.forEach((d, j) => {
+                dailyTasks.forEach((d) => {
                   if (
-                    parseInt(dailyTasks[j].Id) === parseInt(taskIds[i]) &&
-                    dailyTasks[j].Requirements.split(", ").includes(weaponId)
+                    parseInt(d.Id) === parseInt(t) &&
+                    d.Requirements.split(", ").includes(weaponId.toString())
                   ) {
                     add[i] = 1;
-                    proofCount++;
+                    ++proofCount;
                   }
                 });
               });
@@ -288,7 +288,7 @@ Router.post("/checkTasks", (req, res) => {
           );
         });
       } else if (players.length > 0) {
-        if (parseInt(dateTime) - parseInt(players[0].TaskUpdate) >= 86400) {
+        if (dateTime - parseInt(players[0].TaskUpdate) >= 86400000) {
           req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
             if (err)
               return res.status(404).json({
@@ -316,6 +316,8 @@ Router.post("/checkTasks", (req, res) => {
               },
             );
           });
+        } else {
+          return res.status(201).json({ Error: null, Success: null });
         }
       }
     },
