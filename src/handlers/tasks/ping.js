@@ -5,6 +5,6 @@ module.exports = {
   argsRequired: 0,
 
   execute: (message, args, client) => {
-    message.channel.send("Pong");
+    message.channel.send(`Pong`);
   },
 };

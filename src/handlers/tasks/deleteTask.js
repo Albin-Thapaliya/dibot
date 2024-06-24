@@ -7,6 +7,7 @@ module.exports = {
   aliases: ["ddt"],
   permissionsRequired: ["MANAGE_GUILD"],
   argsRequired: 1,
+  format: `+ddt <Id>`,
 
   execute: (message, args, client) => {
     const Id = parseInt(args[0]);

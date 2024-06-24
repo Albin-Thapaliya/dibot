@@ -145,7 +145,7 @@ module.exports = {
 
           client.con.query(
             `INSERT INTO DailyTasks (Reward, Currency, Amount, Description, Requirements) VALUES ('${Required.Reward}', '${"SC"}', '${Required.Amount}', '${Required.Description}', '${Required.Requirements}')`,
-            (err, updated) => {
+            (err, insert) => {
               if (err)
                 return message.channel.send("Wasn't able to create daily task");
 
