@@ -150,7 +150,7 @@ module.exports = {
                 return message.channel.send("Wasn't able to create daily task");
 
               return message.channel.send(
-                `Created new daily task!\nIt owns the Id ${tasks[tasks.length - 1].Id + 1}`,
+                `Created new daily task!\nIt owns the Id ${insert.insertId}`,
               );
             },
           );

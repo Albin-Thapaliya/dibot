@@ -22,14 +22,14 @@ class Clan {
     if (!this.Settings.AdminInviteOnly) return true;
 
     return (
-      this.Members.find((m) => m.RoleId === clan.Roles[0]).PlayFabId ===
+      this.Members.find((m) => m.RoleName === clan.Roles[0]).PlayFabId ===
       playfabId
     );
   }
 
   CanDelete(playfabId) {
     return (
-      this.Members.find((m) => m.RoleId === clan.Roles[0]).PlayFabId ===
+      this.Members.find((m) => m.RoleName === clan.Roles[0]).PlayFabId ===
       playfabId
     );
   }
@@ -299,34 +299,28 @@ Router.post("/acceptInvite", (req, res) => {
             playerData,
             (err, updated) => {
               if (err)
-                return res
-                  .status(404)
-                  .json({
-                    Error: "Wasn't able to store player",
-                    Success: null,
-                  });
+                return res.status(404).json({
+                  Error: "Wasn't able to store player",
+                  Success: null,
+                });
 
               req.con.query(
                 `DELETE FROM ClanInvites WHERE Id='${invite.Id}'`,
                 (err, deleted) => {
                   if (err)
-                    return res
-                      .status(404)
-                      .json({
-                        Error: "Not able to delete invite",
-                        Success: null,
-                      });
+                    return res.status(404).json({
+                      Error: "Not able to delete invite",
+                      Success: null,
+                    });
 
                   req.con.query(
                     `SELECT * FROM ClanMembers WHERE GroupId='${clan.GroupId}'`,
                     (err, results) => {
                       if (err)
-                        return res
-                          .status(404)
-                          .json({
-                            Error: "Wasn't able to get members",
-                            Success: null,
-                          });
+                        return res.status(404).json({
+                          Error: "Wasn't able to get members",
+                          Success: null,
+                        });
 
                       clan.AddMembers(results);
 
@@ -365,31 +359,25 @@ Router.post("/acceptApp", (req, res) => {
         `SELECT * FROM ClanApplications WHERE GroupId='${clan.GroupId}'`,
         (err, apps) => {
           if (err)
-            return res
-              .status(404)
-              .json({
-                Error: "No applications in this clan found",
-                Success: null,
-              });
+            return res.status(404).json({
+              Error: "No applications in this clan found",
+              Success: null,
+            });
 
           if (apps.length <= 0)
-            return res
-              .status(404)
-              .json({
-                Error: "This user has no applications created",
-                Success: null,
-              });
+            return res.status(404).json({
+              Error: "This user has no applications created",
+              Success: null,
+            });
 
           const app = apps.find(
             (a) => JSON.parse(a.Entity).Key.Id === entityKey.Id,
           );
           if (!app)
-            return res
-              .status(404)
-              .json({
-                Error: "This user didn't create any apps",
-                Success: null,
-              });
+            return res.status(404).json({
+              Error: "This user didn't create any apps",
+              Success: null,
+            });
 
           const playerData = {
             GroupId: clan.GroupId,
@@ -404,34 +392,28 @@ Router.post("/acceptApp", (req, res) => {
             playerData,
             (err, updated) => {
               if (err)
-                return res
-                  .status(404)
-                  .json({
-                    Error: "Wasn't able to store player",
-                    Success: null,
-                  });
+                return res.status(404).json({
+                  Error: "Wasn't able to store player",
+                  Success: null,
+                });
 
               req.con.query(
                 `DELETE FROM ClanApplications WHERE Id='${app.Id}'`,
                 (err, deleted) => {
                   if (err)
-                    return res
-                      .status(404)
-                      .json({
-                        Error: "Not able to delete application",
-                        Success: null,
-                      });
+                    return res.status(404).json({
+                      Error: "Not able to delete application",
+                      Success: null,
+                    });
 
                   req.con.query(
                     `SELECT * FROM ClanMembers WHERE GroupId='${clan.GroupId}'`,
                     (err, results) => {
                       if (err)
-                        return res
-                          .status(404)
-                          .json({
-                            Error: "Wasn't able to get members",
-                            Success: null,
-                          });
+                        return res.status(404).json({
+                          Error: "Wasn't able to get members",
+                          Success: null,
+                        });
 
                       clan.AddMembers(results);
 
@@ -633,12 +615,10 @@ Router.get("/deleteClan", (req, res) => {
           clan.AddMembers(members);
 
           if (!clan.CanDelete(playfabId))
-            return res
-              .status(404)
-              .json({
-                Error: "You arent the owner of the clan",
-                Success: null,
-              });
+            return res.status(404).json({
+              Error: "You arent the owner of the clan",
+              Success: null,
+            });
 
           const ids = clan.Members.map((m) => m.Id);
 
@@ -646,23 +626,19 @@ Router.get("/deleteClan", (req, res) => {
             `DELETE FROM ClanMembers WHERE Id IN ('${ids.join("', '")}')`,
             (err, deletedMem) => {
               if (err)
-                return res
-                  .status(404)
-                  .json({
-                    Error: "Wasn't able to delete members",
-                    Success: null,
-                  });
+                return res.status(404).json({
+                  Error: "Wasn't able to delete members",
+                  Success: null,
+                });
 
               req.con.query(
                 `DELETE FROM Clan WHERE Id='${groups[0].Id}'`,
                 (err, deletedGroup) => {
                   if (err)
-                    return res
-                      .status(404)
-                      .json({
-                        Error: "Wasn't able to delete group",
-                        Success: null,
-                      });
+                    return res.status(404).json({
+                      Error: "Wasn't able to delete group",
+                      Success: null,
+                    });
 
                   return res.status(201).json({ Error: null, Success: null });
                 },
@@ -676,10 +652,10 @@ Router.get("/deleteClan", (req, res) => {
 });
 
 Router.post("/deleteInvite", (req, res) => {
-  const { playfabId, groudId } = JSON.parse(req.headers["bodydata"]);
+  const { playfabId, groupId } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
-    `SELECT * FROM ClanInvites WHERE GroupId='${groudId}'`,
+    `SELECT * FROM ClanInvites WHERE GroupId='${groupId}'`,
     (err, invites) => {
       if (err)
         return res
@@ -723,10 +699,10 @@ Router.post("/deleteInvite", (req, res) => {
 });
 
 Router.post("/deleteApp", (req, res) => {
-  const { playfabId, groudId } = JSON.parse(req.headers["bodydata"]);
+  const { playfabId, groupId } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
-    `SELECT * FROM ClanApplications WHERE GroupId='${groudId}'`,
+    `SELECT * FROM ClanApplications WHERE GroupId='${groupId}'`,
     (err, apps) => {
       if (err)
         return res
@@ -734,34 +710,28 @@ Router.post("/deleteApp", (req, res) => {
           .json({ Error: "Wasn't able to get applications", Success: null });
 
       if (apps.length <= 0)
-        return res
-          .status(404)
-          .json({
-            Error: "No applications in that group found",
-            Success: null,
-          });
+        return res.status(404).json({
+          Error: "No applications in that group found",
+          Success: null,
+        });
 
       const allApps = apps.map((a) => new Application(a));
 
       let index = allApps.findIndex((a) => a.Entity.PlayFabId === playfabId);
       if (index === -1)
-        return res
-          .status(404)
-          .json({
-            Error: "No application found associated with this id",
-            Success: null,
-          });
+        return res.status(404).json({
+          Error: "No application found associated with this id",
+          Success: null,
+        });
 
       req.con.query(
         `DELETE FROM ClanApplications WHERE Id='${allApps[index].Id}'`,
         (err, deleted) => {
           if (err)
-            return res
-              .status(404)
-              .json({
-                Error: "Wasn't able to delete application",
-                Success: null,
-              });
+            return res.status(404).json({
+              Error: "Wasn't able to delete application",
+              Success: null,
+            });
 
           allApps.splice(index, 1);
 

@@ -22,6 +22,8 @@
     "mongoose": "^5.9.18",
     "mysql": "^2.18.1",
     "body-parser": "^1.19.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "nodemailer": "^6.4.10",
+    "playfab-sdk": "^2.49.200615"
   }
 }
