@@ -1,8 +1,6 @@
 const Router = require("express").Router();
 
-const ListOfDiscordMods = [
-  // add mod id here
-];
+const ListOfDiscordMods = ["420155082365992961", "194101620567441408"];
 
 class Task {
   constructor(reward, currency, amount, description, requirements) {
@@ -119,10 +117,12 @@ Router.post("/getTasks", (req, res) => {
               .json({ Error: "Wasn't able to get daily tasks", Success: null });
 
           if (dailyTasks.length <= 0)
-            return res.status(404).json({
-              Error: "No daily tasks available, talk to the admin asap!",
-              Success: null,
-            });
+            return res
+              .status(404)
+              .json({
+                Error: "No daily tasks available, talk to the admin asap!",
+                Success: null,
+              });
 
           const myTasks = [];
 
@@ -194,16 +194,20 @@ Router.post("/updateTask", (req, res) => {
             `SELECT Id, Requirements FROM DailyTasks WHERE Id IN ('${taskIds.join("', '")}')`,
             (err, dailyTasks) => {
               if (err)
-                return res.status(404).json({
-                  Error: "Wasn't able to get daily tasks",
-                  Success: null,
-                });
+                return res
+                  .status(404)
+                  .json({
+                    Error: "Wasn't able to get daily tasks",
+                    Success: null,
+                  });
 
               if (dailyTasks.length <= 0)
-                return res.status(404).json({
-                  Error: "No daily tasks available, talk to the admin asap!",
-                  Success: null,
-                });
+                return res
+                  .status(404)
+                  .json({
+                    Error: "No daily tasks available, talk to the admin asap!",
+                    Success: null,
+                  });
 
               taskIds.forEach((t, i) => {
                 dailyTasks.forEach((d) => {
@@ -218,10 +222,12 @@ Router.post("/updateTask", (req, res) => {
               });
 
               if (proofCount === 0)
-                return res.status(404).json({
-                  Error: "This task doesn't exist in your data",
-                  Success: null,
-                });
+                return res
+                  .status(404)
+                  .json({
+                    Error: "This task doesn't exist in your data",
+                    Success: null,
+                  });
 
               add.forEach((a, index) => {
                 status[index] = parseInt(status[index]) + a;
@@ -260,10 +266,12 @@ Router.post("/checkTasks", (req, res) => {
       if (players.length <= 0) {
         req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
           if (err)
-            return res.status(404).json({
-              Error: "Wasn't able to retrieve daily tasks",
-              Success: null,
-            });
+            return res
+              .status(404)
+              .json({
+                Error: "Wasn't able to retrieve daily tasks",
+                Success: null,
+              });
 
           if (dailyTasks.length <= 0)
             return res
@@ -276,10 +284,12 @@ Router.post("/checkTasks", (req, res) => {
             `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0')`,
             (err, updated) => {
               if (err)
-                return res.status(404).json({
-                  Error: "Wasn't able to set the player entry",
-                  Success: null,
-                });
+                return res
+                  .status(404)
+                  .json({
+                    Error: "Wasn't able to set the player entry",
+                    Success: null,
+                  });
 
               return res.status(201).json({ Error: null, Success: null });
             },
@@ -289,10 +299,12 @@ Router.post("/checkTasks", (req, res) => {
         if (dateTime - parseInt(players[0].TaskUpdate) >= 86400000) {
           req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
             if (err)
-              return res.status(404).json({
-                Error: "Wasn't able to retrieve daily tasks",
-                Success: null,
-              });
+              return res
+                .status(404)
+                .json({
+                  Error: "Wasn't able to retrieve daily tasks",
+                  Success: null,
+                });
 
             if (dailyTasks.length <= 0)
               return res
@@ -305,10 +317,12 @@ Router.post("/checkTasks", (req, res) => {
               `UPDATE Players SET TaskUpdate='${dateTime}', Tasks='${tasks.join(", ")}', Status='0, 0, 0', Claimed='0, 0, 0' WHERE PlayFabId='${playfabId}'`,
               (err, updated) => {
                 if (err)
-                  return res.status(404).json({
-                    Error: "Wasn't able to update your daily tasks",
-                    Success: null,
-                  });
+                  return res
+                    .status(404)
+                    .json({
+                      Error: "Wasn't able to update your daily tasks",
+                      Success: null,
+                    });
 
                 return res.status(201).json({ Error: null, Success: null });
               },
@@ -354,10 +368,12 @@ Router.post("/claimTask", (req, res) => {
       });
 
       if (proofIndex === -1)
-        return res.status(404).json({
-          Error: "Wasn't able to find that task in your tasks",
-          Success: null,
-        });
+        return res
+          .status(404)
+          .json({
+            Error: "Wasn't able to find that task in your tasks",
+            Success: null,
+          });
 
       if (parseInt(claimed[proofIndex]) === 1)
         return res
@@ -390,18 +406,22 @@ Router.post("/claimTask", (req, res) => {
             `UPDATE Players SET Claimed='${claimed.join(", ")}' WHERE PlayFabId='${playfabId}'`,
             (err, updated) => {
               if (err)
-                return res.status(404).json({
-                  Error: "Wasn't able to update claim request",
-                  Success: null,
-                });
+                return res
+                  .status(404)
+                  .json({
+                    Error: "Wasn't able to update claim request",
+                    Success: null,
+                  });
 
-              return res.status(201).json({
-                Error: null,
-                Success: new DailyReward(
-                  dailyTask.Currency,
-                  parseInt(dailyTask.Reward),
-                ),
-              });
+              return res
+                .status(201)
+                .json({
+                  Error: null,
+                  Success: new DailyReward(
+                    dailyTask.Currency,
+                    parseInt(dailyTask.Reward),
+                  ),
+                });
             },
           );
         },
