@@ -16,6 +16,7 @@ const con = mysql.createConnection({
   user: MySQLUser,
   password: MySQLPassword,
   host: MySQLHost,
+  database: MySQLDatabase,
 });
 
 const Client = new Discord.Client();
@@ -30,6 +31,7 @@ App.use(cors());
 
 App.use((req, res, next) => {
   req["con"] = con;
+  req["client"] = Client;
 
   next();
 });
@@ -46,6 +48,7 @@ Client.on("ready", () => {
   require("./src/lib/Initialize").InitFunctions(Client);
 
   Client["con"] = con;
+
   module.exports = { Client };
 });
 

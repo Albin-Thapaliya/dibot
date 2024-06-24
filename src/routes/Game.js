@@ -247,15 +247,20 @@ Router.post("/updateTask", (req, res) => {
 });
 
 Router.post("/checkTasks", (req, res) => {
-  const { playfabId, dateTime } = JSON.parse(req.headers["bodydata"]);
+  const { playfabId, dateTime, email } = JSON.parse(req.headers["bodydata"]);
 
   req.con.query(
-    `SELECT * FROM Players WHERE PlayFabId='${playfabId}'`,
+    `SELECT * FROM Players WHERE PlayFabId='${playfabId}' OR Email='${email}'`,
     (err, players) => {
       if (err)
         return res
           .status(404)
           .json({ Error: "Wasn't able to get player", Success: null });
+
+      if (players.length > 1)
+        return res
+          .status(404)
+          .json({ Error: "More than one player entry found", Success: null });
 
       if (players.length <= 0) {
         req.con.query("SELECT * FROM DailyTasks", (err, dailyTasks) => {
@@ -273,7 +278,7 @@ Router.post("/checkTasks", (req, res) => {
           const tasks = GetTasks(dailyTasks);
 
           req.con.query(
-            `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0')`,
+            `INSERT INTO Players (TaskUpdate, PlayFabId, Tasks, Status, Claimed, Email) VALUES ('${dateTime}', '${playfabId}', '${tasks.join(", ")}', '0, 0, 0', '0, 0, 0', '${email ? email : "None"}')`,
             (err, updated) => {
               if (err)
                 return res.status(404).json({
