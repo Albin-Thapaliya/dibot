@@ -17,7 +17,7 @@
   "author": "Albin-Thapaliya",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.2.0",
+    "discord.js": "^14.0.0",
     "express": "4.17.1",
     "mongoose": "^5.9.18",
     "mysql": "^2.18.1",

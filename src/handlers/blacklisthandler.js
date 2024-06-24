@@ -1,34 +1,40 @@
 const { Client } = require("../../index");
 
-const BlacklistedWords = new Array();
+const fakeDatabase = {
+  Blacklist: [
+    { Id: 1, Word: "spam" },
+    { Id: 2, Word: "ban" },
+    { Id: 3, Word: "hack" },
+  ],
+};
+
+const BlacklistedWords = [];
 
 const InitializeList = () => {
-  Client.con.query(`SELECT * FROM Blacklist`, (err, words) => {
-    if (err) return console.error(err);
-
-    words.forEach((w) => {
-      BlacklistedWords.push(w);
+  setTimeout(() => {
+    fakeDatabase.Blacklist.forEach((entry) => {
+      BlacklistedWords.push(entry);
     });
-  });
+    console.log("Blacklist initialized:", BlacklistedWords);
+  }, 100);
 };
 
 const Add = (wordObj) => {
+  fakeDatabase.Blacklist.push(wordObj);
   BlacklistedWords.push(wordObj);
+  console.log("Word added:", wordObj);
 };
 
 const Remove = (id) => {
-  const index = BlacklistedWords.findIndex((w) => w.Id === id);
-  BlacklistedWords.splice(index, 1);
+  const index = BlacklistedWords.findIndex((word) => word.Id === id);
+  if (index !== -1) {
+    BlacklistedWords.splice(index, 1);
+    console.log("Word removed:", id);
+  }
 };
 
 const IsWordBlacklisted = (message) => {
-  let IS_BLACKLISTED = false;
-
-  BlacklistedWords.forEach((w) => {
-    if (message.includes(w.Word)) IS_BLACKLISTED = true;
-  });
-
-  return IS_BLACKLISTED;
+  return BlacklistedWords.some((word) => message.includes(word.Word));
 };
 
 InitializeList();
